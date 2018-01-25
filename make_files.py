@@ -31,6 +31,7 @@ class FileConvert(object):
         posin = haps_file[:, 2].tolist()
 
         line = hapmap.readline()
+        line = hapmap.readline()
         while line:
             line = line.strip().split()
             pos = int(line[1])
@@ -42,18 +43,18 @@ class FileConvert(object):
         index1 = 0
         index2 = 0
         while index1 < len(posin):
-            pos = posin[index1]
+            pos = int(posin[index1])
             rs = rsin[index1]
             chrom = chromin[index1]
             if pos == mappos[index2]:
                 ##the 1000 Genomes site was genotopyes as part of the map (comment directly from original code)
-                print >> outfile, chrom, rs, mapgpos[index2], pos
+                outfile.write(' '.join([chrom, rs, str(mapgpos[index2]), str(pos)]) + '\n')
                 index1 = index1 + 1
             elif pos < mappos[index2]:
                 ## current position in interpolation before marker
                 if index2 == 0:
                     ## before the first site in the map (genetic position = 0)
-                    print >> outfile, chrom, rs, mapgpos[index2], pos
+                    outfile.write(' '.join([chrom, rs, str(mapgpos[index2]), str(pos)]) + '\n')
                     index1 = index1 + 1
                 else:
                     ## interpolate
@@ -61,13 +62,13 @@ class FileConvert(object):
                     prevpos = mappos[index2]
                     frac = (float(pos) - float(mappos[index2 - 1]))/ (float(mappos[index2]) - float(mappos[index2 - 1]))
                     tmpg = prevg + frac* (mapgpos[index2] - prevg)
-                    print >> outfile, chrom, rs, tmpg, pos
+                    outfile.write(' '.join([chrom, rs, str(tmpg), str(pos)]) + '\n')
                     index1 = index1 + 1
             elif pos > mappos[index2]:
                 ## current position in iterpolation after marker
                 if index2 == len(mappos) - 1:
                     ## after the last site in the map (genetic position = maximum in map, note could try to extrapolate based on rate instead)
-                    print >> outfile, chrom, rs, mapgpos[index2], pos
+                    outfile.write(' '.join([chrom, rs, str(mapgpos[index2]), str(pos)]) + '\n')
                     index1 = index1 + 1
                 else:
                     ## increment the marker
@@ -118,23 +119,27 @@ log_array_alt = nucfunc(haps_file[:,4].astype(str))
 
 FileParser.validate_nucleotides(log_array_ref)
 FileParser.validate_nucleotides(log_array_alt)
+FileParser.validate_binary(haps_file)
 stop_ps = datetime.now()
 time_diff_ps = stop_ps - start_ps
-print("Parsing your files take{}".format(time_diff_ps))
+print("Parsing your files takes {}".format(time_diff_ps))
 
 
 ## File convert section
+start_fc = datetime.now()
 pedfile_start = FileConvert.start_pedfile(sample_file)   
 pedlen = int(len(pedfile_start))
 
-hapmap = sys.argv[3]
+hapmap = open(sys.argv[3])
+
 outfile = open(sys.argv[4], "w")
-FileConvert.make_gpos_mapfile(haps_file, hapmap,outfile) 
+FileConvert.make_gpos_mapfile(haps_file, hapmap, outfile) 
 
-
-##Move out of class
 hapslist = FileConvert.convert_haps(haps_file)
 
 final_list = FileConvert.make_pedfile(hapslist, pedlen, pedfile_start)
 
 np.savetxt(sys.argv[5], final_list, fmt='%s', delimiter=' ')
+stop_fc = datetime.now()
+time_diff_fc = stop_fc - start_fc
+print("Making the map file and plink ped file takes {}".format(time_diff_fc))
