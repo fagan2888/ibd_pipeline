@@ -1,9 +1,13 @@
+# APG: #! python env not needed for modules
 #!/bin/usr/env python3
 from datetime import datetime
 import numpy as np
 import os
 import sys
 
+# APG: Documentation: dont understand the 'Version (##)' comment
+# APG: Standards compliance: since a LoadFiles instance has no state, these methods can be static methods
+# APG: Readability: since there's little code here, I'd combine with another file
 
 class LoadFiles(object):
     """LoadFiles
@@ -23,10 +27,13 @@ class LoadFiles(object):
         4-X: covariates
         
         """
+        # APG: Documentation: docstrings for methods should describe arguments
+        # APG: Robustness: even better, check that the 2 header rows are right, if that's possible
         if os.path.isfile(path):
             sample_file = np.loadtxt(path, dtype=str, delimiter=' ', skiprows=2)
             return(sample_file)
         else:
+            # APG: Robustness: would be helpful to report which file doesn't exist in this error msg
             raise IOError("Sample File does not exist.")
 
     def load_haps(path):

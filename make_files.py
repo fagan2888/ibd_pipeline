@@ -1,4 +1,5 @@
 #!/bin/usr/env python3
+# APG: I presume this is your main program, as it imports the other 2 modules
 from datetime import datetime
 import numpy as np
 import os
@@ -19,6 +20,7 @@ class FileConvert(object):
 
     
     def make_gpos_mapfile(haps_file, hapmap, outfile):
+        # APG: Documentation: what is '(something)'?
         """make_gpos_mapfile returns (something) that can be saved as a mapfile with genetic position
         output style: [chrom] [rs] [genetic pos] [pos]
         """
@@ -26,6 +28,13 @@ class FileConvert(object):
         mappos = list()
         mapgpos = list()
 
+        # APG: Readability, Standards compliance: this code contains many magic integer indices; 
+        # APG: would help to document them as constants in the package, e.g.:
+        '''
+        HAPS_CHROM_COL = 0  # define this once
+        chromin = haps_file[:, HAPS_CHROM_COL].tolist()
+        etc.
+        '''
         chromin = haps_file[:, 0].tolist()
         rsin = haps_file[:, 1].tolist()
         posin = haps_file[:, 2].tolist()
@@ -40,6 +49,8 @@ class FileConvert(object):
             mapgpos.append(gpos)
             line = hapmap.readline()
 
+        # APG: Documentation: what does this algorithm do? needs documentation & testing
+        # APG: Documentation: if copied from elsewhere, cite the source
         index1 = 0
         index2 = 0
         while index1 < len(posin):
@@ -79,6 +90,11 @@ class FileConvert(object):
         """convert_haps() takes the haps_file and converts the binary section (0,1) to (A,T,C, or G)
         I want to optimize this there has got to be a better way
         """
+        # APG: Scaling / performance: this is fine python code
+        # APG: to make it faster one could use a library (maybe Pandas or NumPy) that supports vector map 
+        # operations in C
+        # APG: but FIRST, use performance profiling to evaluate whether this contributes significant computing cost to your program
+        # if not, it isn't worth tuning
         haps_list = haps_file.tolist()
         hapslist = []
         for line in haps_list:
@@ -100,6 +116,10 @@ class FileConvert(object):
         return(final_list)
 
 
+# APG: Readability: put in a function so this module can be loaded without running this code, as in unit testing
+
+# APG: Robustness: better than printing status information, log it. 
+# then it can be configured on or off; and if on, one can select destination as file, stdout, network, etc.
 ## Load files and uses class from input_code
 start_lf = datetime.now()
 sample_file = LoadFiles.load_sample(sys.argv[1])
@@ -130,6 +150,7 @@ start_fc = datetime.now()
 pedfile_start = FileConvert.start_pedfile(sample_file)   
 pedlen = int(len(pedfile_start))
 
+# APG: Robustness: these next 3 lines can generate errors
 hapmap = open(sys.argv[3])
 
 outfile = open(sys.argv[4], "w")
