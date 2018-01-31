@@ -25,6 +25,7 @@ class LoadFiles(object):
         """
         if os.path.isfile(path):
             sample_file = np.loadtxt(path, dtype=str, delimiter=' ', skiprows=2)
+            # FR: will this use the first line as the header?
             return(sample_file)
         else:
             raise IOError("Sample File does not exist.")

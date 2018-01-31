@@ -14,7 +14,8 @@ class FileConvert(object):
         """start_pedfile() returns the first five columns of the pedfile
         will need to modify when figuring out how to accomodate for variation in sample files
         """
-        pedfile_start=sample_file[:, [0,1,3,4,5,6]]
+        pedfile_start = sample_file[:, [0, 1, 3, 4, 5, 6]]
+        # FR: PEP8 whitespace standards compliance
         return(pedfile_start)
 
     
@@ -49,6 +50,7 @@ class FileConvert(object):
             if pos == mappos[index2]:
                 ##the 1000 Genomes site was genotopyes as part of the map (comment directly from original code)
                 outfile.write(' '.join([chrom, rs, str(mapgpos[index2]), str(pos)]) + '\n')
+                # FR: is it conventional to join by character instead of tab?
                 index1 = index1 + 1
             elif pos < mappos[index2]:
                 ## current position in interpolation before marker
@@ -60,15 +62,19 @@ class FileConvert(object):
                     ## interpolate
                     prevg = mapgpos[index2 - 1]
                     prevpos = mappos[index2]
-                    frac = (float(pos) - float(mappos[index2 - 1]))/ (float(mappos[index2]) - float(mappos[index2 - 1]))
+                    # FR: avoid line lengths >79 characters:
+                    frac = (float(pos) - float(mappos[index2 - 1]))/(
+                        float(mappos[index2]) - float(mappos[index2 - 1]))
                     tmpg = prevg + frac* (mapgpos[index2] - prevg)
                     outfile.write(' '.join([chrom, rs, str(tmpg), str(pos)]) + '\n')
                     index1 = index1 + 1
             elif pos > mappos[index2]:
                 ## current position in iterpolation after marker
-                if index2 == len(mappos) - 1:
+                if index2 == (len(mappos) - 1):
                     ## after the last site in the map (genetic position = maximum in map, note could try to extrapolate based on rate instead)
-                    outfile.write(' '.join([chrom, rs, str(mapgpos[index2]), str(pos)]) + '\n')
+                    # FR: avoid line lengths >79 characters:
+                    outfile.write(' '.join([chrom, rs, str(mapgpos[index2]), 
+                                            str(pos)]) + '\n')
                     index1 = index1 + 1
                 else:
                     ## increment the marker
@@ -82,7 +88,7 @@ class FileConvert(object):
         haps_list = haps_file.tolist()
         hapslist = []
         for line in haps_list:
-            base1  = line[3]
+            base1 = line[3]
             base2 = line[4]
             nums = line[5:]
             nums = map(lambda x: x.replace('0', base1), nums)
@@ -92,6 +98,7 @@ class FileConvert(object):
 
 
     def make_pedfile(hapslist, pedlen, pedfile_start):
+        # FR: docstring needed here
         lenhaps = int(len(hapslist))
         t_hapslist = np.array(hapslist)
         r_hapslist = t_hapslist.reshape(lenhaps,pedlen,2)

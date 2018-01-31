@@ -41,6 +41,7 @@ class FileParser(object):
     def validate_nucleotides(array):
         """Validates results from nucleotide_test.
         """
+        # FR: use variable name more specific than `array`, e.g., `nuc_array`
         if False in array:
             raise ValueError("The reference or alternative alleles should be A, T, C, or G") ## Ask how to customize this ( I want to say reference or alternative and include loc or false)
         else:
@@ -50,6 +51,7 @@ class FileParser(object):
         """Ensures that the column 6 to the end of the file is 0 or 1.
         """
         log_array_haps = np.logical_or(haps_file[:,5:-1] == '0', haps_file[:,5:-1] =='1')
+        # FR: are you sure these columns will be string instead of numeric?
         if False in log_array_haps:
             raise ValueError("This is not a properly formated Haplotype file. The haplotypes should be 0's and 1's.")
         else:
